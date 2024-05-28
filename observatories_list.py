@@ -20,5 +20,6 @@ df_add_lat_long['longitude'] = df_add_lat_long['経度(度)'] + (df_add_lat_long
 
 
 # 出力
-df_add_lat_long.to_csv(os.path.join(output_dir, 'observatories_kansyo_drop_duplicates.csv'), index=False)
+df_add_lat_long.to_csv(os.path.join(output_dir, 'observatories_finalize.csv'), index=False)
+
 
