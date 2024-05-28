@@ -1,12 +1,24 @@
+import os
 import pandas as pd
 
-# df = pd.DataFrame({
-#       '名前': ["佐藤", "斎藤", "鈴木"],
-#       '年齢': [24, 45, 36]
-#     })
-# print(df)
+#出力先ディレクトリの設定
+output_dir = './processed'
 
-# df = pd.read_excel('./raw/list_of_observatories_240527DL.xlsx', sheet_name=3)
-df = pd.read_excel('./raw/list_of_observatories_240527DL.xlsx', sheet_name=3)
+# 観測値データの読み込み
+df=pd.read_csv('./raw/ame_master_20240401_utf-8.csv', encoding='utf-8')
 
-print(df)
+#全観測地テーブルの読み込みと結合 →　地上気象観測装置（略字「官」）
+df_kansyo = df[df['種類'] == '官']
+
+# 「札幌市中央区北2条西　札幌管区気象台」と「札幌市中央区北2条西」のように，同じidで２個所の所在地データがあるものを1箇所に重複除外する（上にある行のデータを採用）
+df_filt_kansyo_drop_dup = df_kansyo.drop_duplicates(subset='観測所番号', keep='first')
+
+# 緯度・経度を60進数から10進数に変換したカラムを作成
+df_add_lat_long = df_filt_kansyo_drop_dup.copy()
+df_add_lat_long['latitude'] = df_add_lat_long['緯度(度)'] + (df_add_lat_long['緯度(分)']/60)
+df_add_lat_long['longitude'] = df_add_lat_long['経度(度)'] + (df_add_lat_long['経度(分)']/60)
+
+
+# 出力
+df_add_lat_long.to_csv(os.path.join(output_dir, 'observatories_kansyo_drop_duplicates.csv'), index=False)
+
